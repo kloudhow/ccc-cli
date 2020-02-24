@@ -1,0 +1,51 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "version": "0.1.0",
+  "description": "{{name}}",
+  "keywords": [],
+  "dependencies": {
+    "@babel/plugin-proposal-throw-expressions": "7.2.0",
+    "@sailshq/lodash": "3.10.3",
+    "async": "2.0.1",
+    "axios": "0.18.0",
+    "memory-cache": "0.2.0",
+    "moment-timezone": "0.5.23",
+    "nodemon": "1.18.9",
+    "sails": "^1.0.2",
+    "sails-hook-babel": "7.0.0",
+    "sails-hook-orm": "^2.0.0-16",
+    "sails-hook-sockets": "1.4.0",
+    {{#ifeq db "psql"}}
+    "sails-postgresql": "^1.0.2",
+    {{/ifeq}}
+    {{#ifeq db "mongo"}}
+    "sails-mongo": "1.0.1",
+    {{/ifeq}}
+    "winston": "3.0.0"
+  },
+  "devDependencies": {
+    "@sailshq/eslint": "4.19.3",
+    "mocha": "5.2.0",
+    "should": "13.2.3",
+    "supertest": "3.3.0"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon --ignore node_modules/ app.js",
+    "start": "node app.js",
+    "debug": "node debug app.js",
+    "test": "node ./node_modules/mocha/bin/mocha test/lifecycle.test.js test/integration/**/*.test.js",
+    "test-file": "node ./node_modules/mocha/bin/mocha test/lifecycle.test.js",
+    "lint": "eslint . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'"
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git://gitlab.goappable.com"
+  },
+  "author": "duminhtam",
+  "license": "",
+  "engines": {
+    "node": ">=10"
+  }
+}

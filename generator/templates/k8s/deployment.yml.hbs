@@ -1,0 +1,74 @@
+{{#if uat}}
+    {{assign 'namespace' 'uat'}}
+{{/if}}
+{{#if canary}}
+    {{assign 'namespace' 'canary'}}
+{{/if}}
+{{#if production}}
+    {{assign 'namespace' 'production'}}
+{{/if}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{@root.namespace}}-{{name}}
+spec:
+  selector:
+    matchLabels:
+      app: {{@root.namespace}}-{{name}}
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: {{@root.namespace}}-{{name}}
+    spec:
+      containers:
+      - name: {{@root.namespace}}-{{name}}
+        image: gcr.io/{{GCPProject}}/{{name}}:latest
+        command: ["yarn"]
+        args: ["run", "start"]
+        {{#if env}}
+        env:
+        {{/if}}
+        {{#each env}}
+        - name: {{@key}}
+          valueFrom:
+            configMapKeyRef:
+              name: {{../namespace}}-{{../name}}
+              key: {{this}}
+        {{/each}}
+
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{@root.namespace}}-{{name}}
+spec:
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: {{@root.namespace}}-{{name}}
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 80
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 90
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{@root.namespace}}-{{name}}
+spec:
+  selector:
+    app: {{@root.namespace}}-{{name}}
+  ports:
+  - protocol: TCP
+    port: 1337
+    targetPort: 1337
